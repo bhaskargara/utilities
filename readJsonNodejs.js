@@ -33,6 +33,60 @@ var AWS = require('aws-sdk'),
 let questions;
 const GAME_LENGTH = 2;
 const ANSWER_COUNT = 4;
+var gameQuestions = [];
+var myMap = new Map();
+myMap.set(0,"A");
+myMap.set(1,"B");
+myMap.set(2,"C");
+myMap.set(3,"D");
+myMap.set(4,"E");
+
+function getWelcomeResponse(callback)
+{
+    var sessionAttributes = {};
+     var speechOutput = '';
+   
+    gameQuestions = populateGameQuestions();
+    var currentQuestionIndex = 0;
+    var answerList = questions[gameQuestions[currentQuestionIndex]].answers;
+    console.log(answerList);
+    var answerlenght = Object.keys(answerList).length;
+    var spokenQuestion = questions[gameQuestions[currentQuestionIndex]].question;
+    var repromptText = "Question 1. " + spokenQuestion + " ";
+    
+    var i, j;
+    
+    
+    for (i = 0; i < answerlenght; i++) {
+        repromptText += myMap.get(i) + ". " + answerList[myMap.get(i)] + ". "
+    }
+    
+    speechOutput += repromptText;
+    callback(speechOutput, repromptText);
+    
+}
+
+function populateGameQuestions() {
+    var indexList = [];
+    var index = Object.keys(questions).length;
+
+   
+    for (var i = 0; i < questions.length; i++){
+        indexList.push(i);
+    }
+
+    // Pick GAME_LENGTH random questions from the list to ask the user, make sure there are no repeats.
+    for (var j = 0; j < GAME_LENGTH; j++){
+        var rand = Math.floor(Math.random() * index);
+        index -= 1;
+
+        var temp = indexList[index];
+        indexList[index] = indexList[rand];
+        indexList[rand] = temp;
+        gameQuestions.push(indexList[index]); 
+    }
+    return gameQuestions; 
+}
 
 exports.handler = function(event, context, callback){
 	var params = {
@@ -52,19 +106,9 @@ exports.handler = function(event, context, callback){
 		    
 		}else{
 			questions = data.Items;
-	        var gameQuestions = populateGameQuestions(questions);
-		    console.log("The game qustion",gameQuestions);
-		    var correctAnswerIndex = Math.floor(Math.random() * (ANSWER_COUNT));
-		    
-		    var currentQuestionIndex = 0;
-            var spokenQuestion = questions[gameQuestions[currentQuestionIndex]].question;
-            var repromptText = "Question 1. " + spokenQuestion + " ";
-            console.log("this is repromptetext", repromptText);
-            var answerlenght = questions[gameQuestions[currentQuestionIndex]].answers;
-            console.log(Object.keys(answerlenght).length);
-            console.log(Object.keys(questions[0]).length);
-            
-            console.log(questions[gameQuestions[currentQuestionIndex]].correct);
+			console.log(getWelcomeResponse(callback));
+			
+	       
 		}
 	});
 	// 
@@ -72,29 +116,8 @@ exports.handler = function(event, context, callback){
 
 }
 
-function populateGameQuestions(questions) {
-    var gameQuestions = [];
-    var indexList = [];
-    var index = Object.keys(questions).length;
 
-   
-    for (var i = 0; i < questions.length; i++){
-        indexList.push(i);
-    }
 
-    // Pick GAME_LENGTH random questions from the list to ask the user, make sure there are no repeats.
-    for (var j = 0; j < GAME_LENGTH; j++){
-        var rand = Math.floor(Math.random() * index);
-        index -= 1;
-
-        var temp = indexList[index];
-        indexList[index] = indexList[rand];
-        indexList[rand] = temp;
-        gameQuestions.push(indexList[index]);
-    }
-
-    return gameQuestions;
-}
 
 /*exports.handler = (event, context, callback) => {
     // TODO implement
@@ -104,5 +127,7 @@ function populateGameQuestions(questions) {
     };
     callback(null, response);
 };*/
+
+
 
 
