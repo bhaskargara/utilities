@@ -1,0 +1,33 @@
+curl --request POST \
+  --url 'http://control.msg91.com/api/sendotp.php?template=&otp_length=&authkey=&message=&sender=&mobile=&otp=&otp_expiry=&email='
+  
+  
+API KEY :  264605APkEXoXCr5c72b192
+
+var http = require("http");
+
+var options = {
+  "method": "POST",
+  "hostname": "control.msg91.com",
+  "port": null,
+  "path": "/api/sendotp.php?template=&otp_length=&authkey=&message=&sender=&mobile=&otp=&otp_expiry=&email=",
+  "headers": {}
+};
+
+var req = http.request(options, function (res) {
+  var chunks = [];
+
+  res.on("data", function (chunk) {
+    chunks.push(chunk);
+  });
+
+  res.on("end", function () {
+    var body = Buffer.concat(chunks);
+    console.log(body.toString());
+  });
+});
+
+req.end();
+
+
+https://docs.msg91.com/collection/msg91-api-integration/5/send-otp-message/TZ6HN0YI
